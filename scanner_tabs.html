@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10haath Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1b1b1b;
+        --muted: #5b5b5b;
+        --paper: #f7f3ea;
+        --accent: #0f7a6d;
+        --accent-2: #d9822b;
+        --danger: #c23b22;
+        --card: #ffffff;
+        --border: #e2d8c5;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Space Grotesk", system-ui, sans-serif; color: var(--ink); background: #12233f; }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 28px 18px 80px; }
+      header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+      h1 { margin: 0; font-size: 28px; color: #fff; }
+      .subtitle { color: #d8d8d8; font-size: 14px; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 16px; }
+      .panel-card { max-width: 520px; margin: 0 auto 16px; }
+      .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; background: #f1f1f1; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+      .tab-btn { border: none; background: transparent; padding: 12px 10px; font-weight: 700; cursor: pointer; color: #4b4b4b; }
+      .tab-btn.active { background: #1f3558; color: #fff; }
+      .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+      .btn { border: none; padding: 12px 18px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+      .btn.secondary { background: var(--accent-2); }
+      .btn.danger { background: var(--danger); }
+      label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); margin-bottom: 6px; }
+      input, textarea, select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; }
+      textarea { min-height: 90px; }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+      .hidden { display: none; }
+      .timer { font-size: 22px; font-weight: 700; color: var(--danger); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1 id="identityHeading">Loading...</h1>
+        <div class="subtitle" id="identitySub"></div>
+        <div class="subtitle mono">Build: 2026-03-13 13:30 IST</div>
+        <div class="subtitle" style="color:#ffb27a; font-weight:600;">QRDOCTOR STYLE TABS ACTIVE</div>
+      </header>
+
+      <section class="card" id="statusCard">
+        <div class="subtitle" id="statusText">Fetching secure record...</div>
+      </section>
+
+      <section class="card panel-card" id="flowPanel">
+        <div class="tabs" id="flowTabs">
+          <button class="tab-btn active" data-tab="savior">Savior</button>
+          <button class="tab-btn" data-tab="owner">Owner</button>
+        </div>
+
+        <section id="saviorCard">
+          <h2>Step 1: Savior Verification</h2>
+          <div id="saviorVerification">
+            <button class="btn" id="verifyBtn">VERIFY VIA WHATSAPP</button>
+            <p id="verifyNote" style="font-size: 12px; margin-top: 10px; color: #666;">
+              Gadi ke maalik ko emergency alert bhejne ke liye WhatsApp verify karein.
+            </p>
+          </div>
+
+          <div id="logbook" class="hidden" style="margin-top: 14px;">
+            <div class="row">
+              <div id="vehicleNoGroup" class="hidden">
+                <label>Vehicle Number (Verified)</label>
+                <input id="vNo" readonly />
+              </div>
+              <div>
+                <label for="scannerNo">Your WhatsApp Number</label>
+                <input id="scannerNo" type="number" placeholder="WhatsApp number jisse message bheja" />
+              </div>
+              <div>
+                <label for="dikkat">Problem / Situation</label>
+                <textarea id="dikkat" placeholder="Gadi lock hai / Shisha khula hai / Emergency..."></textarea>
+              </div>
+            </div>
+            <div style="margin-top: 12px;">
+              <button class="btn secondary" id="logSubmit">FINAL SUBMIT</button>
+            </div>
+            <div id="legalNote" class="hidden" style="margin-top: 15px; padding: 12px; background: #fff4f4; border-radius: 10px; border: 1px solid #ffcccc; text-align: left;">
+              <p style="font-size: 12px; color: #d63031; margin: 0; line-height: 1.5; font-weight: 600;">
+                ⚠️ <span style="text-decoration: underline;">Sachet (Alert):</span> Aapka WhatsApp number record kiya ja chuka hai. 
+                Galat jankari dena kanoonan apradh hai.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="ownerCard" class="hidden">
+          <h2>Step 2: Owner Management</h2>
+          <div class="row" id="pinSection">
+            <div>
+              <label for="pinInput">Security PIN</label>
+              <input id="pinInput" type="password" placeholder="Enter owner PIN" />
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button class="btn" id="pinCheck">Unlock Management</button>
+            </div>
+          </div>
+          <div id="ownerPanel" class="hidden" style="margin-top: 14px;">
+            <div id="sosButtons"></div>
+            
+            <div id="registrationForm" class="hidden" style="margin-top: 20px; border-top: 1px solid #eee; pt: 15px;">
+              <h3 style="font-size: 16px;">Update QR Details</h3>
+              <div class="row">
+                <div>
+                  <label>Owner Name</label>
+                  <input type="text" id="ownerName" placeholder="Owner Name">
+                </div>
+                <div>
+                  <label>Vehicle/Gadi No.</label>
+                  <input type="text" id="gadiNo" placeholder="Vehicle Number">
+                </div>
+                <div>
+                  <label>WhatsApp No.</label>
+                  <input type="number" id="ownerWA" placeholder="WhatsApp Number">
+                </div>
+                <div>
+                  <label>Email 1 (Primary)</label>
+                  <input type="email" id="email1" placeholder="Email 1">
+                </div>
+                <div>
+                  <label>Email 2 (Optional)</label>
+                  <input type="email" id="email2" placeholder="Email 2">
+                </div>
+              </div>
+              <button class="btn" style="margin-top: 15px;" id="updateBtn">UPDATE QR INFO</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="card hidden" id="serviceCard"></section>
+      <section class="card hidden" id="docCard"></section>
+    </div>
+
+    <script>
+      const API_BASE_DEFAULT = "https://sheetdb.io/api/v1/vpozwh7cptzc4";
+      const API_BASE = API_BASE_DEFAULT;
+      // Replace with your actual deployed Google Apps Script URL
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_REPLACE_ME/exec";
+      localStorage.setItem("10haath_api_base", API_BASE_DEFAULT);
+
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("t") || params.get("type") || "";
+      const qName = params.get("n") || "";
+      const qWa = params.get("w") || "";
+      const qSecret = params.get("s") || "";
+      const urlId = params.get("id") || "";
+
+      const identityHeading = document.getElementById("identityHeading");
+      const identitySub = document.getElementById("identitySub");
+      const statusText = document.getElementById("statusText");
+      const saviorCard = document.getElementById("saviorCard");
+      const ownerCard = document.getElementById("ownerCard");
+      const verifyBtn = document.getElementById("verifyBtn");
+      const logbook = document.getElementById("logbook");
+      const logSubmit = document.getElementById("logSubmit");
+      const pinCheck = document.getElementById("pinCheck");
+      const sosButtons = document.getElementById("sosButtons");
+      const serviceCard = document.getElementById("serviceCard");
+      const docCard = document.getElementById("docCard");
+      const flowTabs = document.getElementById("flowTabs");
+
+      let record = null;
+      let embeddedId = "";
+
+      function sanitizePhone(value) { return String(value || "").replace(/\D/g, ""); }
+      function buildWhatsAppUrl(phone, text) {
+        const base = phone ? `https://wa.me/${phone}` : "https://wa.me/";
+        return `${base}?text=${encodeURIComponent(text)}`;
+      }
+      function decodeSecret(encoded) {
+        if (!encoded) return null;
+        try {
+          let b64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+          const pad = b64.length % 4;
+          if (pad) b64 += "=".repeat(4 - pad);
+          const json = decodeURIComponent(escape(atob(b64)));
+          return JSON.parse(json);
+        } catch (e) { return null; }
+      }
+      function humanTimestamp() {
+        return new Date().toLocaleString("en-IN", {
+          year: "numeric", month: "2-digit", day: "2-digit",
+          hour: "2-digit", minute: "2-digit", second: "2-digit",
+        });
+      }
+      async function getGpsLink() {
+        return new Promise((resolve) => {
+          if (!navigator.geolocation) { resolve("Location not available"); return; }
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const { latitude, longitude } = pos.coords;
+              resolve(`https://maps.google.com/?q=${latitude},${longitude}`);
+            },
+            () => resolve("Location not available"),
+            { enableHighAccuracy: true, timeout: 8000 }
+          );
+        });
+      }
+      async function sheetdbPatchById(sheetName, idValue, payload) {
+        const field = "Cust_ID";
+        const patchWithBody = (url, body) =>
+          fetch(url, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+        const putWithBody = (url, body) =>
+          fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+
+        // Fallback to query-style update
+        const params = new URLSearchParams();
+        params.set("sheet", sheetName);
+        params.set(field, idValue);
+        const queryUrl = `${API_BASE}?${params.toString()}`;
+        let res = await patchWithBody(queryUrl, payload);
+        if (!res.ok) {
+          res = await patchWithBody(queryUrl, { data: payload });
+        }
+        if (!res.ok) {
+          res = await putWithBody(queryUrl, payload);
+          if (!res.ok) {
+            res = await putWithBody(queryUrl, { data: payload });
+          }
+        }
+        if (!res.ok) {
+          res._debugUrl = queryUrl;
+        }
+        return res;
+      }
+      async function readResponseText(res) {
+        try {
+          return await res.text();
+        } catch (e) {
+          return "";
+        }
+      }
+      async function fetchExistingRow(sheetName, idValue) {
+        const trySearch = async (fieldName) => {
+          const url = `${API_BASE}/search?${encodeURIComponent(fieldName)}=${encodeURIComponent(idValue)}&sheet=${encodeURIComponent(sheetName)}`;
+          const res = await fetch(url);
+          if (!res.ok) return null;
+          const data = await res.json();
+          if (!Array.isArray(data) || data.length === 0) return null;
+          return data[data.length - 1];
+        };
+        let row = await trySearch("Cust_ID");
+        if (!row) row = await trySearch("Cust_ID(No.)");
+        return row || {};
+      }
+      async function saveLiveLocation(sheetName, idValue, liveLink, rec) {
+        if (!idValue) return { ok: false, mode: "missing_id" };
+        const payload = { Timestamp: humanTimestamp(), "Liv location": liveLink };
+        try {
+          const existing = await fetchExistingRow(sheetName, idValue);
+          const email1 = existing.Email1 || existing["Email1"] || rec?.Email1 || "";
+          const email2 = existing.Email2 || existing["Email2"] || rec?.Email2 || "";
+          const createPayload = {
+            Timestamp: payload.Timestamp,
+            "Cust_ID(No.)": idValue,
+            Cust_ID: idValue,
+            Person_Name: rec?.Person_Name || "",
+            Emergency1: rec?.Emergency1 || "",
+            Email1: email1,
+            Email2: email2,
+            WACompany: rec?.WACompany || "",
+            Owner_PIN: rec?.Owner_PIN || "",
+            Dikkat: "",
+            "ScannerNo.": "",
+            "Liv location": liveLink,
+          };
+          const postWithBody = (url, body) =>
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+
+          const queryUrl = `${API_BASE}?sheet=${encodeURIComponent(sheetName)}`;
+          const pathUrl = `${API_BASE}/${encodeURIComponent(sheetName)}`;
+
+          let postRes = await postWithBody(queryUrl, createPayload);
+          if (!postRes.ok) {
+            postRes = await postWithBody(queryUrl, { data: createPayload });
+          }
+          if (!postRes.ok) {
+            postRes = await postWithBody(pathUrl, createPayload);
+          }
+          if (!postRes.ok) {
+            postRes = await postWithBody(pathUrl, { data: createPayload });
+          }
+          if (!postRes.ok) {
+            const detail = await readResponseText(postRes);
+            return { ok: false, mode: "insert_failed", status: postRes.status, detail };
+          }
+          return { ok: true, mode: "insert", status: postRes.status };
+        } catch (e) {
+          return { ok: false, mode: "fail" };
+        }
+      }
+
+      async function fetchRecord() {
+        if (qName || qSecret || qWa) {
+          const sec = decodeSecret(qSecret) || {};
+          embeddedId = sec.c || urlId || "";
+          record = {
+            Person_Name: qName || "10haath",
+            Emergency1: sec.e || "",
+            Email1: sec.e1 || "",
+            Email2: sec.e2 || "",
+            Owner_PIN: sec.p || "",
+            WACompany: qWa || "",
+          };
+          statusText.textContent = "Secure record loaded.";
+          identityHeading.textContent = record.Person_Name || "10haath";
+          identitySub.textContent = "";
+          routeByTab();
+          return;
+        }
+        statusText.textContent = "Missing QR parameters.";
+        identityHeading.textContent = "Invalid QR";
+      }
+
+      function setupTabs() {
+        const buttons = flowTabs.querySelectorAll(".tab-btn");
+        const showTab = (tabName) => {
+          if (tabName === "savior") { saviorCard.classList.remove("hidden"); ownerCard.classList.add("hidden"); }
+          else { ownerCard.classList.remove("hidden"); saviorCard.classList.add("hidden"); }
+          buttons.forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === tabName));
+        };
+        buttons.forEach((btn) => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+        showTab("savior");
+      }
+
+      function renderSafety(isCat1) {
+        setupTabs();
+
+        if (isCat1) {
+          document.getElementById("vehicleNoGroup").classList.remove("hidden");
+          document.getElementById("legalNote").classList.remove("hidden");
+          document.getElementById("vNo").value = record.Person_Name || "10haath";
+        }
+
+        verifyBtn.addEventListener("click", () => {
+          const identity = record.Person_Name || "10haath";
+          const msg = `10haath Alert: I am verifying recovery for ${identity}. Please check.`;
+          const waCompany = sanitizePhone(record.WACompany);
+          window.open(buildWhatsAppUrl(waCompany, msg), "_blank");
+          logbook.classList.remove("hidden");
+        });
+
+        logSubmit.addEventListener("click", async () => {
+          const scannerNo = document.getElementById("scannerNo").value || "";
+          const dikkat = document.getElementById("dikkat").value || "";
+          const gadi = record.Person_Name || "10haath";
+
+          if (scannerNo.length < 10) {
+            alert("Kripya sahi WhatsApp number bharein!");
+            return;
+          }
+
+          logSubmit.innerText = "Processing...";
+          logSubmit.disabled = true;
+
+          // If Apps Script is available, use it to save data and get emails
+          if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("REPLACE_ME")) {
+            try {
+              const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                  action: "saveAlertPro",
+                  gadi: gadi,
+                  phone: scannerNo,
+                  reason: dikkat
+                })
+              });
+              const data = await res.json();
+              if (data.status === "SUCCESS") {
+                const recipients = [data.email1, data.email2].filter(Boolean).join(",");
+                sendEmail(recipients, gadi, scannerNo, dikkat);
+              } else {
+                alert("Error: " + data.message);
+              }
+            } catch (e) {
+              console.error(e);
+              // Fallback to local record if script fails
+              const recipients = [record.Email1, record.Email2].filter(Boolean).join(",");
+              sendEmail(recipients, gadi, scannerNo, dikkat);
+            }
+          } else {
+            // Standard flow using local record
+            const recipients = [record.Email1, record.Email2].filter(Boolean).join(",");
+            sendEmail(recipients, gadi, scannerNo, dikkat);
+          }
+          
+          logSubmit.innerText = "Final Submit";
+          logSubmit.disabled = false;
+        });
+
+        function sendEmail(recipients, gadi, scannerNo, dikkat) {
+          const subject = encodeURIComponent(`🚨 Savior Alert - ${gadi}`);
+          const body = encodeURIComponent(
+            `Emergency report from Savior.\n\n` +
+            `Vehicle: ${gadi}\n` +
+            `Scanner Phone: ${scannerNo}\n` +
+            `Problem: ${dikkat}\n\n` +
+            `Please respond immediately.`
+          );
+          window.location.href = `mailto:${recipients}?subject=${subject}&body=${body}`;
+          statusText.textContent = "Email app opened.";
+        }
+
+        if (isCat1) {
+          pinCheck.addEventListener("click", async () => {
+            const pin = document.getElementById("pinInput").value || "";
+            if (pin !== String(record.Owner_PIN || "")) {
+              statusText.textContent = "Incorrect PIN.";
+              return;
+            }
+            
+            document.getElementById("pinSection").classList.add("hidden");
+            const ownerPanel = document.getElementById("ownerPanel");
+            ownerPanel.classList.remove("hidden");
+            
+            statusText.textContent = "Management Unlocked.";
+            const identity = record.Person_Name || "10haath";
+
+            // SOS Buttons (Original logic)
+            sosButtons.innerHTML = "";
+            const mapsBtn = document.createElement("button");
+            mapsBtn.type = "button";
+            mapsBtn.className = "btn";
+            mapsBtn.style.marginTop = "10px";
+            mapsBtn.textContent = "OPEN GOOGLE MAPS (LIVE SHARE)";
+            mapsBtn.addEventListener("click", () => {
+              window.open("https://maps.google.com", "_blank", "noopener,noreferrer");
+            });
+            sosButtons.appendChild(mapsBtn);
+
+            // Registration Form (For Cat 1 Owner to update details)
+            const registrationForm = document.getElementById("registrationForm");
+            registrationForm.classList.remove("hidden");
+            
+            document.getElementById("ownerName").value = record.Person_Name || "";
+            document.getElementById("gadiNo").value = record.Person_Name || "";
+            document.getElementById("ownerWA").value = record.WACompany || "";
+            document.getElementById("email1").value = record.Email1 || "";
+            document.getElementById("email2").value = record.Email2 || "";
+
+            document.getElementById("updateBtn").addEventListener("click", async () => {
+              const data = {
+                action: "processRegistration",
+                name: document.getElementById("ownerName").value,
+                gadi: document.getElementById("gadiNo").value,
+                phone: document.getElementById("ownerWA").value,
+                email1: document.getElementById("email1").value,
+                email2: document.getElementById("email2").value,
+                emergency: document.getElementById("ownerWA").value
+              };
+
+              if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("REPLACE_ME")) {
+                statusText.textContent = "Updating QR info...";
+                try {
+                  const res = await fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                  });
+                  const result = await res.json();
+                  if (result.status === "SUCCESS") {
+                    statusText.textContent = "QR info updated successfully!";
+                  } else {
+                    alert("Update failed: " + result.message);
+                  }
+                } catch (e) {
+                  alert("Script error: " + e.message);
+                }
+              } else {
+                alert("Apps Script URL not set. Please set APPS_SCRIPT_URL in scanner_tabs.html");
+              }
+            });
+          });
+        }
+      }
+
+      function routeByTab() {
+        const isCat1 = tab === "P00_Human";
+        const isCat2 = tab === "P00_Value";
+        const isCat3 = tab.startsWith("P0") && !isCat1 && !isCat2 && tab !== "P13_Doc";
+        const isCat4 = tab === "P13_Doc";
+
+        if (isCat1 || isCat2) { flowTabs.classList.remove("hidden"); renderSafety(isCat1); return; }
+
+        saviorCard.classList.add("hidden");
+        ownerCard.classList.add("hidden");
+        flowTabs.classList.add("hidden");
+
+        if (isCat3) renderService();
+        if (isCat4) renderDocVault();
+      }
+
+      function renderService() {
+        serviceCard.classList.remove("hidden");
+        serviceCard.innerHTML = `<h2>Smart Service</h2><p>Service flow not enabled in QR-only mode.</p>`;
+      }
+
+      function renderDocVault() {
+        docCard.classList.remove("hidden");
+        docCard.innerHTML = `<h2>Document Vault</h2><p>Doc vault requires SheetDB mode.</p>`;
+      }
+
+      fetchRecord();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10haath Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #1b1b1b;
+        --muted: #5b5b5b;
+        --paper: #f7f3ea;
+        --accent: #0f7a6d;
+        --accent-2: #d9822b;
+        --card: #ffffff;
+        --border: #e2d8c5;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top, #fff7e3, var(--paper));
+      }
+
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .brand { display: flex; flex-direction: column; gap: 4px; }
+      .brand h1 { margin: 0; font-size: 28px; letter-spacing: 0.2px; }
+      .brand p { margin: 0; color: var(--muted); font-size: 14px; }
+
+      .note {
+        background: #fff5d2;
+        border: 1px dashed #e0c986;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .section-title { font-size: 16px; margin: 0 0 12px; }
+
+      .category-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .pill {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        background: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        text-align: center;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+      }
+
+      .pill:hover { transform: translateY(-2px); box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08); }
+      .pill.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(15, 122, 109, 0.2); }
+
+      form { display: grid; gap: 12px; }
+
+      label {
+        display: block;
+        font-size: 12px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      input, select, textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-family: inherit;
+        font-size: 14px;
+      }
+
+      textarea { min-height: 90px; }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+      }
+
+      .btn {
+        border: none;
+        padding: 12px 18px;
+        border-radius: 12px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn.secondary { background: var(--accent-2); }
+
+      .qr-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <h1>10haath Master Dashboard</h1>
+          <p>QR/NFC Builder for high-trust security and services</p>
+        </div>
+        <div class="note">
+          Set API base in JS: <span class="mono">API_BASE</span>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card">
+          <h2 class="section-title">Category</h2>
+          <div class="category-buttons" id="categoryButtons"></div>
+        </section>
+
+        <section class="card">
+          <h2 class="section-title">Service</h2>
+          <select id="serviceSelect"></select>
+        </section>
+
+        <section class="card" style="grid-column: 1 / -1;">
+          <h2 class="section-title">Config</h2>
+          <form id="configForm">
+            <div class="row">
+              <div>
+                <label for="apiBaseInput">SheetDB API Base</label>
+                <input id="apiBaseInput" placeholder="https://sheetdb.io/api/v1/your_id" />
+              </div>
+              <div>
+                <label for="scanBaseInput">Scanner URL Base</label>
+                <input id="scanBaseInput" placeholder="https://your-github-pages/scanner_tabs.html" />
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="card" style="grid-column: 1 / -1;">
+          <h2 class="section-title">Builder Form</h2>
+          <form id="builderForm"></form>
+          <div class="actions">
+            <button class="btn" id="submitBtn" type="button">Submit & Generate QR</button>
+            <button class="btn secondary" id="resetBtn" type="button">Reset</button>
+          </div>
+        </section>
+
+        <section class="card" style="grid-column: 1 / -1;">
+          <h2 class="section-title">QR Output</h2>
+          <div class="qr-box">
+            <div id="qr"></div>
+            <div class="mono" id="qrNameLabel"></div>
+            <div class="mono" id="scanUrlLabel"></div>
+            <div class="mono" id="qrStatus"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+      const API_BASE_DEFAULT = "https://sheetdb.io/api/v1/vpozwh7cptzc4";
+      const SCAN_BASE_DEFAULT =
+        "https://shishupalji1855-hue.github.io/10/scanner_tabs.html";
+      // Replace with your actual deployed Google Apps Script URL
+      const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_REPLACE_ME/exec";
+
+      const SYMBOLS = {
+        AUTOMATED: "!",
+        IDENTITY: "$",
+        BUILDER: "#",
+        SCANNER: "%",
+      };
+
+      const services = {
+        P00_Human: {
+          label: "Cat 1 - Human Safety",
+          category: "Cat 1",
+          fields: [
+            { key: "Timestamp", symbol: SYMBOLS.AUTOMATED },
+            { key: "Cust_ID(No.)", symbol: SYMBOLS.IDENTITY },
+            { key: "Person_Name", symbol: SYMBOLS.BUILDER },
+            { key: "Emergency1", symbol: SYMBOLS.BUILDER },
+            { key: "Email1", symbol: SYMBOLS.BUILDER },
+            { key: "Email2", symbol: SYMBOLS.BUILDER },
+            { key: "WACompany", symbol: SYMBOLS.BUILDER },
+            { key: "Owner_PIN", symbol: SYMBOLS.BUILDER },
+            { key: "Dikkat", symbol: SYMBOLS.SCANNER },
+            { key: "ScannerNo", symbol: SYMBOLS.SCANNER },
+          ],
+        },
+        P00_Value: {
+          label: "Cat 2 - Value Safety",
+          category: "Cat 2",
+          fields: [
+            { key: "Timestamp", symbol: SYMBOLS.AUTOMATED },
+            { key: "Cust_ID(No.)", symbol: SYMBOLS.IDENTITY },
+            { key: "Person_Name", symbol: SYMBOLS.BUILDER },
+            { key: "Email1", symbol: SYMBOLS.BUILDER },
+            { key: "Email2", symbol: SYMBOLS.BUILDER },
+            { key: "WACompany", symbol: SYMBOLS.BUILDER },
+            { key: "Dikkat", symbol: SYMBOLS.SCANNER },
+            { key: "ScannerNo", symbol: SYMBOLS.SCANNER },
+          ],
+        },
+        P01_Pay: { label: "Cat 3 - P01 Pay", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Name", symbol: SYMBOLS.BUILDER }, { key: "UPI_ID", symbol: SYMBOLS.BUILDER }] },
+        P03_Biz: { label: "Cat 3 - P03 Biz", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Name", symbol: SYMBOLS.BUILDER }, { key: "Job", symbol: SYMBOLS.BUILDER }, { key: "Phone", symbol: SYMBOLS.BUILDER }, { key: "Email", symbol: SYMBOLS.BUILDER }, { key: "Instagram", symbol: SYMBOLS.BUILDER }, { key: "LinkedIn", symbol: SYMBOLS.BUILDER }, { key: "Website", symbol: SYMBOLS.BUILDER }] },
+        P04_Review: { label: "Cat 3 - P04 Review", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Business_Name", symbol: SYMBOLS.BUILDER }, { key: "Review_URL", symbol: SYMBOLS.BUILDER }] },
+        P08_Resume: { label: "Cat 3 - P08 Resume", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Name", symbol: SYMBOLS.BUILDER }, { key: "Resume_Link", symbol: SYMBOLS.BUILDER }] },
+        P09_WiFi: { label: "Cat 3 - P09 WiFi", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "SSID", symbol: SYMBOLS.BUILDER }, { key: "Password", symbol: SYMBOLS.BUILDER }, { key: "Security", symbol: SYMBOLS.BUILDER }] },
+        P11_Challan: { label: "Cat 3 - P11 Challan", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Vehicle_No", symbol: SYMBOLS.BUILDER }, { key: "Owner_Name", symbol: SYMBOLS.BUILDER }] },
+        P12_Invite: { label: "Cat 3 - P12 Invite", category: "Cat 3", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "PIN", symbol: SYMBOLS.BUILDER }, { key: "Event_Name", symbol: SYMBOLS.BUILDER }, { key: "Date", symbol: SYMBOLS.BUILDER }, { key: "Maps_Link", symbol: SYMBOLS.BUILDER }, { key: "Video_Link", symbol: SYMBOLS.BUILDER }] },
+        P13_Doc: { label: "Cat 4 - P13 Doc Vault", category: "Cat 4", fields: [{ key: "Timestamp", symbol: SYMBOLS.AUTOMATED }, { key: "Cust_ID", symbol: SYMBOLS.IDENTITY }, { key: "Name", symbol: SYMBOLS.BUILDER }, { key: "Gadi_Number", symbol: SYMBOLS.BUILDER }, { key: "Drive_Link", symbol: SYMBOLS.BUILDER }, { key: "Drive_Password", symbol: SYMBOLS.BUILDER }, { key: "Password_Free_PDF_Link", symbol: SYMBOLS.BUILDER }] },
+      };
+
+      const categories = [
+        { id: "Cat 1", label: "Category 1" },
+        { id: "Cat 2", label: "Category 2" },
+        { id: "Cat 3", label: "Category 3" },
+        { id: "Cat 4", label: "Category 4" },
+      ];
+
+      const categoryButtons = document.getElementById("categoryButtons");
+      const serviceSelect = document.getElementById("serviceSelect");
+      const apiBaseInput = document.getElementById("apiBaseInput");
+      const scanBaseInput = document.getElementById("scanBaseInput");
+      const builderForm = document.getElementById("builderForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const qrStatus = document.getElementById("qrStatus");
+      const qrNameLabel = document.getElementById("qrNameLabel");
+      const scanUrlLabel = document.getElementById("scanUrlLabel");
+
+      let activeCategory = "Cat 1";
+      let activeService = "P00_Human";
+      let API_BASE = API_BASE_DEFAULT;
+      localStorage.setItem("10haath_api_base", API_BASE_DEFAULT);
+      let SCAN_BASE =
+        localStorage.getItem("10haath_scan_base") || SCAN_BASE_DEFAULT;
+
+      function renderCategories() {
+        categoryButtons.innerHTML = "";
+        categories.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "pill" + (cat.id === activeCategory ? " active" : "");
+          btn.textContent = cat.label;
+          btn.addEventListener("click", () => {
+            activeCategory = cat.id;
+            renderCategories();
+            renderServices();
+          });
+          categoryButtons.appendChild(btn);
+        });
+      }
+
+      function renderServices() {
+        serviceSelect.innerHTML = "";
+        const entries = Object.entries(services).filter(
+          ([, svc]) => svc.category === activeCategory
+        );
+        entries.forEach(([key, svc]) => {
+          const opt = document.createElement("option");
+          opt.value = key;
+          opt.textContent = svc.label;
+          serviceSelect.appendChild(opt);
+        });
+        activeService = entries[0]?.[0] || "";
+        serviceSelect.value = activeService;
+        renderForm();
+      }
+
+      function renderForm() {
+        builderForm.innerHTML = "";
+        if (!activeService) return;
+
+        const svc = services[activeService];
+        svc.fields
+          .filter((f) => f.symbol === SYMBOLS.BUILDER || f.symbol === SYMBOLS.IDENTITY)
+          .forEach((field) => {
+            const wrap = document.createElement("div");
+            const label = document.createElement("label");
+            if (field.key === "Cust_ID" || field.key === "Cust_ID(No.)") {
+              label.textContent = "Owner Code (Hidden)";
+            } else {
+              label.textContent = `${field.key} (${field.symbol})`;
+            }
+            const input = document.createElement("input");
+            input.name = field.key;
+            input.placeholder =
+              field.key === "Cust_ID" || field.key === "Cust_ID(No.)"
+                ? "Enter owner code"
+                : field.key;
+            input.required = field.symbol === SYMBOLS.BUILDER || field.symbol === SYMBOLS.IDENTITY;
+            if (field.key.toLowerCase().includes("password") || field.key.toLowerCase().includes("pin")) {
+              input.type = "password";
+            }
+            if (field.key === "Cust_ID" || field.key === "Cust_ID(No.)") {
+              input.type = "password";
+              input.inputMode = "numeric";
+            }
+            wrap.appendChild(label);
+            wrap.appendChild(input);
+            builderForm.appendChild(wrap);
+          });
+      }
+
+      serviceSelect.addEventListener("change", (e) => {
+        activeService = e.target.value;
+        renderForm();
+      });
+
+      apiBaseInput.value = API_BASE;
+      scanBaseInput.value = SCAN_BASE;
+      apiBaseInput.addEventListener("change", () => {
+        API_BASE = apiBaseInput.value.trim() || API_BASE_DEFAULT;
+        localStorage.setItem("10haath_api_base", API_BASE);
+      });
+      scanBaseInput.addEventListener("change", () => {
+        SCAN_BASE = scanBaseInput.value.trim() || SCAN_BASE_DEFAULT;
+        localStorage.setItem("10haath_scan_base", SCAN_BASE);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        builderForm.reset();
+        document.getElementById("qr").innerHTML = "";
+        qrStatus.textContent = "";
+        qrNameLabel.textContent = "";
+        scanUrlLabel.textContent = "";
+      });
+
+      async function sheetdbPost(tabName, payload) {
+        const primaryUrl = `${API_BASE}/${tabName}`;
+        const altUrl = `${API_BASE}?sheet=${encodeURIComponent(tabName)}`;
+
+        let res = await fetch(primaryUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok || res.status !== 404) {
+          return res;
+        }
+
+        res = await fetch(altUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        return res;
+      }
+
+      function base64UrlEncode(obj) {
+        const json = JSON.stringify(obj);
+        const b64 = btoa(unescape(encodeURIComponent(json)));
+        return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      }
+
+      async function submitForm() {
+        const svc = services[activeService];
+        const formData = new FormData(builderForm);
+        const payload = {};
+        svc.fields.forEach((field) => {
+          if (field.symbol === SYMBOLS.AUTOMATED) {
+            payload[field.key] = new Date().toLocaleString("en-IN", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            return;
+          }
+          if (field.symbol === SYMBOLS.SCANNER) return;
+          payload[field.key] = formData.get(field.key) || "";
+        });
+
+        const custValue = payload["Cust_ID(No.)"] || payload.Cust_ID;
+        if (!custValue) {
+          alert("Owner Code is required.");
+          return;
+        }
+        payload.Cust_ID = custValue;
+
+        // --- NEW APPS SCRIPT SYNC FOR CAT 1 ---
+        if (activeCategory === "Cat 1" && APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("REPLACE_ME")) {
+          try {
+            qrStatus.textContent = "Syncing with Google Sheets...";
+            const scriptRes = await fetch(APPS_SCRIPT_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "processRegistration",
+                name: payload.Person_Name || "",
+                gadi: payload.Person_Name || "", // Using Person_Name as Gadi for Cat 1
+                phone: payload.Emergency1 || "",
+                email1: payload.Email1 || "",
+                email2: payload.Email2 || "",
+                emergency: payload.Emergency1 || ""
+              })
+            });
+            const scriptData = await scriptRes.json();
+            if (scriptData.status !== "SUCCESS") {
+              console.warn("Apps Script sync failed:", scriptData.message);
+            }
+          } catch (e) {
+            console.error("Apps Script Error:", e);
+          }
+        }
+
+        if (!API_BASE || API_BASE.includes("REPLACE_ME")) {
+          alert("Please set a valid SheetDB API Base.");
+          return;
+        }
+
+        const res = await sheetdbPost(activeService, payload);
+
+        if (!res.ok) {
+          let errText = "";
+          try { errText = await res.text(); } catch (e) { errText = ""; }
+          alert(`SheetDB sync failed (${res.status}). Check API_BASE and tab name.${errText ? "\n" + errText : ""}`);
+          return;
+        }
+
+        const shortName =
+          (payload.Person_Name ||
+            payload.Gadi_Number ||
+            payload.Name ||
+            payload.Business_Name ||
+            payload.Owner_Name ||
+            "") + "";
+
+        const secret = base64UrlEncode({
+          e: payload.Emergency1 || "",
+          p: payload.Owner_PIN || "",
+          c: custValue || "",
+          e1: payload.Email1 || "",
+          e2: payload.Email2 || "",
+        });
+
+        const scanJoiner = SCAN_BASE.includes("?") ? "&" : "?";
+        const scanUrl =
+          `${SCAN_BASE}${scanJoiner}` +
+          `t=${encodeURIComponent(activeService)}` +
+          `&n=${encodeURIComponent(shortName)}` +
+          `&w=${encodeURIComponent(payload.WACompany || "")}` +
+          `&s=${encodeURIComponent(secret)}` +
+          `&id=${encodeURIComponent(custValue)}`;
+
+        const displayName =
+          payload.Person_Name ||
+          payload.Gadi_Number ||
+          payload.Name ||
+          payload.Business_Name ||
+          payload.Owner_Name ||
+          "10haath";
+        qrNameLabel.textContent = displayName;
+        scanUrlLabel.textContent = scanUrl;
+        qrStatus.textContent = "QR generated. Print and attach to the item.";
+        const qrEl = document.getElementById("qr");
+        qrEl.innerHTML = "";
+        new QRCode(qrEl, {
+          text: scanUrl,
+          width: 160,
+          height: 160,
+          colorDark: "#1b1b1b",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.L,
+        });
+      }
+
+      submitBtn.addEventListener("click", submitForm);
+
+      renderCategories();
+      renderServices();
+    </script>
+  </body>
+</html>
